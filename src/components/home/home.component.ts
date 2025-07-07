@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { HotjarService } from '../../services/hotjar.service';
 
 @Component({
   selector: 'app-home',
@@ -17,7 +18,7 @@ import { RouterLink } from '@angular/router';
           <a routerLink="/contact" class="btn btn-secondary">Get in Touch</a>
         </div>
       </div>
-      
+
       <div class="features-section">
         <h2>Why Choose Us?</h2>
         <div class="features-grid">
@@ -41,4 +42,35 @@ import { RouterLink } from '@angular/router';
     </div>
   `,
 })
-export class HomeComponent {}
+export class HomeComponent implements OnInit {
+  // The ID of your Hotjar feedback widget
+  private feedbackWidgetId = 1; // Replace with your actual widget ID
+
+  constructor(private hotjarService: HotjarService) {}
+
+  ngOnInit(): void {
+    // Set up listener for feedback submission
+    this.setupFeedbackListener();
+  }
+
+  /**
+   * Shows the Hotjar feedback widget
+   */
+  showFeedback(): void {
+    this.hotjarService.showFeedbackWidget(this.feedbackWidgetId);
+  }
+
+  /**
+   * Sets up a listener for feedback submission events
+   */
+  private setupFeedbackListener(): void {
+    this.hotjarService.onFeedbackSubmitted(() => {
+      console.log('Feedback submitted! Reopening widget in 3 seconds...');
+
+      // Wait a few seconds and then show the feedback button again
+      setTimeout(() => {
+        this.hotjarService.reopenFeedbackWidget(this.feedbackWidgetId);
+      }, 3000);
+    });
+  }
+}
